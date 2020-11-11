@@ -7,6 +7,5 @@
 /.history
 tmp
 /.idea
-.env
 /apps/**
 .vscode
