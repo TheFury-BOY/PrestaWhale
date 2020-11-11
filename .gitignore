@@ -1,0 +1,12 @@
+/.history
+/.vscode
+/data/mysql/*
+/logs/apache2/*.log
+/logs/mysql/*.log
+.DS_Store
+/.history
+tmp
+/.idea
+.env
+/apps/**
+.vscode
