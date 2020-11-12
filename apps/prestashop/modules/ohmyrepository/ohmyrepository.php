@@ -1,4 +1,5 @@
 <?php
+
 /**
 * 2007-2020 PrestaShop
 *
@@ -28,6 +29,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+require_once(dirname(__FILE__) . '/vendor/autoload.php');
+
 class Ohmyrepository extends Module
 {
     protected $config_form = false;
@@ -39,6 +42,10 @@ class Ohmyrepository extends Module
         $this->version = '0.1.0';
         $this->author = 'TheFury-BOY';
         $this->need_instance = 0;
+        $this->ps_version_compliancy = [
+            'min' => '1.6',
+            'max' => _PS_VERSION_
+        ];
 
         /**
          * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
@@ -61,18 +68,97 @@ class Ohmyrepository extends Module
      */
     public function install()
     {
-        Configuration::updateValue('OHMYREPOSITORY_LIVE_MODE', false);
+        if (\Shop::isFeatureActive())
+            \Shop::setContext(\Shop::CONTEXT_ALL);
 
         return parent::install() &&
-            $this->registerHook('header') &&
-            $this->registerHook('backOfficeHeader');
+        $this->registerHook('displayHome') &&
+        \Configuration::updateValue('github_username', "")&&
+        \Configuration::updateValue('github_repository_name', "");
     }
 
     public function uninstall()
     {
-        Configuration::deleteByName('OHMYREPOSITORY_LIVE_MODE');
+        if (!parent::uninstall() || !Configuration::deleteByName('github_username') || !Configuration::deleteByName('github_repository_name'))
+            return false;
+        return true;
+    }
 
-        return parent::uninstall();
+    public function hookDisplayHome($params)
+    {
+        // < assign variables to template >
+        $this->context->smarty->assign(
+            array(
+                'github_username' => Configuration::get('github_username'),
+                'github_repository_name' => Configuration::get('github_repository_name')
+            )
+        );
+        return $this->display(__FILE__, 'github_repo_activities.tpl');
+    }
+    
+    public function displayForm()
+    {
+        // < init fields for form array >
+        $fields_form[0]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Oh-My-Repository Module'),
+            ),
+            'input' => array(
+                array(
+                    'type' => 'text',
+                    'label' => $this->l('GitHub Account Name'),
+                    'name' => 'github_username',
+                    'lang' => false,
+                    'size' => 20,
+                    'required' => true
+                ),
+                array(
+                    'type' => 'text',
+                    'label' => $this->l('GitHub Repository Name'),
+                    'name' => 'github_username',
+                    'lang' => false,
+                    'size' => 20,
+                    'required' => true
+                )
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+                'class' => 'btn btn-default pull-right'
+            )
+        );
+    
+        // < load helperForm >
+        $helper = new \HelperForm();
+
+        // < module, token and currentIndex >
+        $helper->module = $this;
+        $helper->name_controller = $this->name;
+        $helper->token = \Tools::getAdminTokenLite('AdminModules');
+        $helper->currentIndex = \AdminController::$currentIndex.'&configure='.$this->name;
+    
+        // < title and toolbar >
+        $helper->title = $this->displayName;
+        $helper->show_toolbar = true;        // false -> remove toolbar
+        $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
+        $helper->submit_action = 'submit'.$this->name;
+        $helper->toolbar_btn = array(
+            'save' =>
+                array(
+                    'desc' => $this->l('Save'),
+                    'href' => \AdminController::$currentIndex.'&configure='.$this->name.'&save'.$this->name.
+                        '&token='.\Tools::getAdminTokenLite('AdminModules'),
+                ),
+            'back' => array(
+                'href' => \AdminController::$currentIndex.'&token='.\Tools::getAdminTokenLite('AdminModules'),
+                'desc' => $this->l('Back to list')
+            )
+        );
+    
+        // < load current value >
+        $helper->fields_value['github_username'] = \Configuration::get('github_username');
+        $helper->fields_value['github_repository_name'] = \Configuration::get('github_repository_name');
+    
+        return $helper->generateForm($fields_form);
     }
 
     /**
@@ -80,122 +166,80 @@ class Ohmyrepository extends Module
      */
     public function getContent()
     {
-        /**
-         * If values have been submitted in the form, process.
-         */
-        if (((bool)Tools::isSubmit('submitOhmyrepositoryModule')) == true) {
-            $this->postProcess();
+        $output = null;
+    
+    
+        // < here we check if the form is submited for this module >
+        if (\Tools::isSubmit('submit'.$this->name)) {
+            $github_account = strval(Tools::getValue('githubhub_account'));
+            $github_repository_name = strval(Tools::getValue('github_repository_name'));
+
+    
+            // < make some validation, check if we have something in the input >
+            if (!isset($github_account))
+                $output .= $this->displayError($this->l('Please insert GitHub account name here.'));
+            if (!isset($github_repository_name))
+                $output .= $this->displayError($this->l('Please insert GitHub repository name here.'));
+            else
+            {
+                // < this will update the value of the Configuration variable >
+                \Configuration::updateValue('github_account', $github_account);
+                \Configuration::updateValue('github_repository_name', $github_repository_name);
+    
+    
+                // < this will display the confirmation message >
+                $output .= $this->displayConfirmation($this->l('GitHub Repository updated!'));
+            }
+        }
+        return $output.$this->displayForm();
+    }
+
+    /**
+     */
+    public function installTab()
+    {
+        $tab = new \Tab();
+
+        $tab->module = $this->name;
+
+        $languages = \Language::getLanguages(false);
+        $name = array();
+        foreach ($languages as $language) {
+            $name[$language['id_lang']] = 'Advertising';
         }
 
-        $this->context->smarty->assign('module_dir', $this->_path);
+        $tab->name = $name;
+        $tab->class_name = 'AdminEmarketing';
 
-        $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+        if (version_compare(_PS_VERSION_, '1.7.0', '>=')) {
+            $tab->icon = 'track_changes';
+            $tab->id_parent = (int)Tab::getIdFromClassName('IMPROVE');
+            $tab->save();
 
-        return $output.$this->renderForm();
-    }
-
-    /**
-     * Create the form that will be displayed in the configuration of your module.
-     */
-    protected function renderForm()
-    {
-        $helper = new HelperForm();
-
-        $helper->show_toolbar = false;
-        $helper->table = $this->table;
-        $helper->module = $this;
-        $helper->default_form_language = $this->context->language->id;
-        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
-
-        $helper->identifier = $this->identifier;
-        $helper->submit_action = 'submitOhmyrepositoryModule';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
-            .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
-        $helper->token = Tools::getAdminTokenLite('AdminModules');
-
-        $helper->tpl_vars = array(
-            'fields_value' => $this->getConfigFormValues(), /* Add values for your inputs */
-            'languages' => $this->context->controller->getLanguages(),
-            'id_language' => $this->context->language->id,
-        );
-
-        return $helper->generateForm(array($this->getConfigForm()));
-    }
-
-    /**
-     * Create the structure of your form.
-     */
-    protected function getConfigForm()
-    {
-        return array(
-            'form' => array(
-                'legend' => array(
-                'title' => $this->l('Settings'),
-                'icon' => 'icon-cogs',
-                ),
-                'input' => array(
-                    array(
-                        'type' => 'switch',
-                        'label' => $this->l('Live mode'),
-                        'name' => 'OHMYREPOSITORY_LIVE_MODE',
-                        'is_bool' => true,
-                        'desc' => $this->l('Use this module in live mode'),
-                        'values' => array(
-                            array(
-                                'id' => 'active_on',
-                                'value' => true,
-                                'label' => $this->l('Enabled')
-                            ),
-                            array(
-                                'id' => 'active_off',
-                                'value' => false,
-                                'label' => $this->l('Disabled')
-                            )
-                        ),
-                    ),
-                    array(
-                        'col' => 3,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-envelope"></i>',
-                        'desc' => $this->l('Enter a valid email address'),
-                        'name' => 'OHMYREPOSITORY_ACCOUNT_EMAIL',
-                        'label' => $this->l('Email'),
-                    ),
-                    array(
-                        'type' => 'password',
-                        'name' => 'OHMYREPOSITORY_ACCOUNT_PASSWORD',
-                        'label' => $this->l('Password'),
-                    ),
-                ),
-                'submit' => array(
-                    'title' => $this->l('Save'),
-                ),
-            ),
-        );
-    }
-
-    /**
-     * Set values for the inputs.
-     */
-    protected function getConfigFormValues()
-    {
-        return array(
-            'OHMYREPOSITORY_LIVE_MODE' => Configuration::get('OHMYREPOSITORY_LIVE_MODE', true),
-            'OHMYREPOSITORY_ACCOUNT_EMAIL' => Configuration::get('OHMYREPOSITORY_ACCOUNT_EMAIL', 'contact@prestashop.com'),
-            'OHMYREPOSITORY_ACCOUNT_PASSWORD' => Configuration::get('OHMYREPOSITORY_ACCOUNT_PASSWORD', null),
-        );
-    }
-
-    /**
-     * Save form data.
-     */
-    protected function postProcess()
-    {
-        $form_values = $this->getConfigFormValues();
-
-        foreach (array_keys($form_values) as $key) {
-            Configuration::updateValue($key, Tools::getValue($key));
+            return;
         }
+
+        $tab->id_parent = 0;
+        $tab->add();
+    }
+
+        
+    /**
+     * @return bool
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
+    
+    public function uninstallTab()
+    {
+        $tabId = (int)Tab::getIdFromClassName('AdminEmarketing');
+        if (!$tabId) {
+            return true;
+        }
+
+        $tab = new \Tab($tabId);
+
+        return $tab->delete();
     }
 
     /**

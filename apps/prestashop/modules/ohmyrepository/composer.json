@@ -1,0 +1,26 @@
+{
+    "name": "thefury-boy/ohmyrepository",
+    "description": "A little module to show to your customers the activities of your favorites Repositories on Github.com",
+    "authors": [
+        {
+            "name": "TheFury-BOY",
+            "email": "dudeck-adrien@laposte.net"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "knplabs/github-api": "^2.16",
+        "php-http/guzzle6-adapter": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PrestaShop\\Module\\OhMyRepository\\": "src/"
+        },
+        "config": {
+            "preferred-install": "dist",
+            "prepend-autoloader": false
+        },
+        "type": "prestashop-module",
+        "license": "MIT"
+    }
+}
