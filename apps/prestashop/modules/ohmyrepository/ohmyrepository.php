@@ -73,27 +73,29 @@ class Ohmyrepository extends Module
 
         return parent::install() &&
         $this->registerHook('displayHome') &&
-        \Configuration::updateValue('github_username', "")&&
-        \Configuration::updateValue('github_repository_name', "");
+        \Configuration::updateValue('github_account_name', "") &&
+        \Configuration::updateValue('github_repository_name', "") &&
+        \Configuration::updateValue('number_of_commits', "");
     }
 
     public function uninstall()
     {
-        if (!parent::uninstall() || !Configuration::deleteByName('github_username') || !Configuration::deleteByName('github_repository_name'))
+        if (!parent::uninstall() 
+            || !Configuration::deleteByName('github_account_name') 
+            || !Configuration::deleteByName('github_repository_name')
+            || !Configuration::deleteByName('number_of_commits')
+        )
             return false;
         return true;
     }
 
-    public function hookDisplayHome($params)
+    public function hookDisplayHome()
     {
         // < assign variables to template >
         $this->context->smarty->assign(
-            array(
-                'github_username' => Configuration::get('github_username'),
-                'github_repository_name' => Configuration::get('github_repository_name')
-            )
+            $this->getCommit()
         );
-        return $this->display(__FILE__, 'github_repo_activities.tpl');
+        return $this->display(__FILE__, 'github_commits.tpl');
     }
     
     public function displayForm()
@@ -107,18 +109,25 @@ class Ohmyrepository extends Module
                 array(
                     'type' => 'text',
                     'label' => $this->l('GitHub Account Name'),
-                    'name' => 'github_username',
+                    'name' => 'github_account_name',
                     'lang' => false,
-                    'size' => 20,
+                    'size' => 5,
                     'required' => true
                 ),
                 array(
                     'type' => 'text',
                     'label' => $this->l('GitHub Repository Name'),
-                    'name' => 'github_username',
+                    'name' => 'github_repository_name',
                     'lang' => false,
-                    'size' => 20,
+                    'size' => 5,
                     'required' => true
+                ),
+                array(
+                    'type' => 'html',
+                    'label' => $this->l('Number Input'),
+                    'name' => 'number_of_commits',
+                    'required' => true,
+                    'html_content' => '<input type="number" min="1" max="5" step="1" name="number_of_commits" class="form-control">'
                 )
             ),
             'submit' => array(
@@ -155,8 +164,9 @@ class Ohmyrepository extends Module
         );
     
         // < load current value >
-        $helper->fields_value['github_username'] = \Configuration::get('github_username');
+        $helper->fields_value['github_account_name'] = \Configuration::get('github_account_name');
         $helper->fields_value['github_repository_name'] = \Configuration::get('github_repository_name');
+        $helper->fields_value['number_of_commits'] = \Configuration::get('number_of_commits');
     
         return $helper->generateForm($fields_form);
     }
@@ -167,79 +177,32 @@ class Ohmyrepository extends Module
     public function getContent()
     {
         $output = null;
-    
-    
+
         // < here we check if the form is submited for this module >
         if (\Tools::isSubmit('submit'.$this->name)) {
-            $github_account = strval(Tools::getValue('githubhub_account'));
-            $github_repository_name = strval(Tools::getValue('github_repository_name'));
+            $github_account_name = strval(\Tools::getValue('github_account_name'));
+            $github_repository_name = strval(\Tools::getValue('github_repository_name'));
+            $number_of_commits = strval(\Tools::getValue('number_of_commits'));
 
-    
             // < make some validation, check if we have something in the input >
-            if (!isset($github_account))
+            if (!isset($github_account_name))
                 $output .= $this->displayError($this->l('Please insert GitHub account name here.'));
             if (!isset($github_repository_name))
                 $output .= $this->displayError($this->l('Please insert GitHub repository name here.'));
+            if (!isset($number_of_commits))
+                $output .= $this->displayError($this->l('Please insert number of commits here.'));
             else
             {
                 // < this will update the value of the Configuration variable >
-                \Configuration::updateValue('github_account', $github_account);
+                \Configuration::updateValue('github_account_name', $github_account_name);
                 \Configuration::updateValue('github_repository_name', $github_repository_name);
-    
-    
+                \Configuration::updateValue('number_of_commits', $number_of_commits);
+
                 // < this will display the confirmation message >
                 $output .= $this->displayConfirmation($this->l('GitHub Repository updated!'));
             }
         }
         return $output.$this->displayForm();
-    }
-
-    /**
-     */
-    public function installTab()
-    {
-        $tab = new \Tab();
-
-        $tab->module = $this->name;
-
-        $languages = \Language::getLanguages(false);
-        $name = array();
-        foreach ($languages as $language) {
-            $name[$language['id_lang']] = 'Advertising';
-        }
-
-        $tab->name = $name;
-        $tab->class_name = 'AdminEmarketing';
-
-        if (version_compare(_PS_VERSION_, '1.7.0', '>=')) {
-            $tab->icon = 'track_changes';
-            $tab->id_parent = (int)Tab::getIdFromClassName('IMPROVE');
-            $tab->save();
-
-            return;
-        }
-
-        $tab->id_parent = 0;
-        $tab->add();
-    }
-
-        
-    /**
-     * @return bool
-     * @throws PrestaShopDatabaseException
-     * @throws PrestaShopException
-     */
-    
-    public function uninstallTab()
-    {
-        $tabId = (int)Tab::getIdFromClassName('AdminEmarketing');
-        if (!$tabId) {
-            return true;
-        }
-
-        $tab = new \Tab($tabId);
-
-        return $tab->delete();
     }
 
     /**
@@ -260,5 +223,36 @@ class Ohmyrepository extends Module
     {
         $this->context->controller->addJS($this->_path.'/views/js/front.js');
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
+    }
+
+    public function getCommit()
+    {
+        $github_repository_name = \Configuration::get('github_repository_name');
+        $github_account_name = \Configuration::get('github_account_name');
+        $number_of_commits = \Configuration::get('number_of_commits');
+
+        $client = new \Github\Client();
+        
+        try {
+            $commits = $client->api('repo')->commits()->all($github_account_name, $github_repository_name, ['path' => ""]);
+
+            $filter_commits = array();
+            $count = 0;
+            foreach ($commits as $commit) {
+                if ($count > $number_of_commits) {
+                    break;
+                }
+                array_push($filter_commits, $commit['commit']['message']);
+                $count++;
+            }
+
+            $params = array(
+                'repository' => $github_repository_name,
+                'commits' => $filter_commits
+            );
+            return $params;
+        } catch (\RuntimeException $e) {
+            echo "Github API Access Error.";
+        }
     }
 }

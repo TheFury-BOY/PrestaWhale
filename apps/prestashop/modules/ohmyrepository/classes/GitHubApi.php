@@ -19,8 +19,8 @@ class GitHubApi
                 'repository' => $repository,
                 'commit' => $commits
             );
-
-            return $params;
+            ddd($params);
+            $this->context->smarty($params); 
         } catch (\RuntimeException $e) {
             echo "Github API Access Error.";
         }
