@@ -1,4 +1,26 @@
-<?php
+<?php /* Smarty version Smarty-3.1.19, created on 2020-11-13 04:58:20
+         compiled from "/var/www/html/prestashop/modules/ohmyrepository/ohmyrepository.php" */ ?>
+<?php /*%%SmartyHeaderCode:11548282365fae041e12fd60-72639126%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+$_valid = $_smarty_tpl->decodeProperties(array (
+  'file_dependency' => 
+  array (
+    'f54d0d060442dacd01ba607d5851da349826431e' => 
+    array (
+      0 => '/var/www/html/prestashop/modules/ohmyrepository/ohmyrepository.php',
+      1 => 1605239882,
+      2 => 'file',
+    ),
+  ),
+  'nocache_hash' => '11548282365fae041e12fd60-72639126',
+  'function' => 
+  array (
+  ),
+  'cache_lifetime' => 300,
+  'version' => 'Smarty-3.1.19',
+  'unifunc' => 'content_5fae041e148bc3_41094374',
+  'has_nocache_code' => false,
+),false); /*/%%SmartyHeaderCode%%*/?>
+<?php if ($_valid && !is_callable('content_5fae041e148bc3_41094374')) {function content_5fae041e148bc3_41094374($_smarty_tpl) {?><<?php ?>?php
 
 /**
 * 2007-2020 PrestaShop
@@ -95,7 +117,7 @@ class Ohmyrepository extends Module
         $this->context->smarty->assign(
             $this->getCommit()
         );
-        return $this->display(__FILE__, 'github_commits.tpl');
+        return $this->cacheDislay(__FILE__, 'github_commits.tpl');
     }
     
     public function displayForm()
@@ -261,4 +283,18 @@ class Ohmyrepository extends Module
             echo "Github API Access Error.";
         }
     }
+    private function cacheDislay($tpl)
+    {
+        $smarty = new \Smarty;
+    
+        // retain current cache lifetime for each specific display call
+        $smarty->setCaching(\Smarty::CACHING_LIFETIME_SAVED);
+        
+        // set the cache_lifetime for home.tpl to 1 hour
+        $smarty->setCacheLifetime(300);
+        
+        $smarty->display($tpl);
+
+    }
 }
+<?php }} ?>

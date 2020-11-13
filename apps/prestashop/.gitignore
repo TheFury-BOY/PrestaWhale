@@ -9,6 +9,8 @@
 config.codekit
 *.code-project
 *.code-workspace
+
+/install.old/**
 # Directories content
 cache/class_index.php
 cache/smarty/cache/*
@@ -38,3 +40,4 @@ modules/*/config*.xml
 # Ignore files on root directory
 robots.txt
 sitemap.xml
+
