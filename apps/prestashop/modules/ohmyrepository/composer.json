@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "PrestaShop\\Module\\OhMyRepository\\": "src/"
+            "PrestaShop\\Module\\OhMyRepository\\": "classes/"
         },
         "config": {
             "preferred-install": "dist",

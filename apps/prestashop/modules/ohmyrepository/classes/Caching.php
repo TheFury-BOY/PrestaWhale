@@ -5,10 +5,15 @@ namespace Prestashop\Module\OhMyRepository;
 
 class Caching
 {
-    public static function cacheDisplay($tpl)
+    public function __construct()
     {
         $smarty = new \Smarty;
-    
+        $smarty->caching = true;
+    }
+
+    public static function smartyBlockDynamic($param, $content, $tpl)
+    {
+        
         // retain current cache lifetime for each specific display call
         $smarty->setCaching(\Smarty::CACHING_LIFETIME_SAVED);
         

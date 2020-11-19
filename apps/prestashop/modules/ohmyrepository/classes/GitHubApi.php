@@ -5,12 +5,9 @@ namespace Prestashop\Module\OhMyRepository;
 class GitHubApi
 {
 
-    public static function getCommit()
+    public function getCommit($github_repository_name, $github_account_name, $number_of_commits)
     {
-        $github_repository_name = \Configuration::get('github_repository_name');
-        $github_account_name = \Configuration::get('github_account_name');
-        $number_of_commits = \Configuration::get('number_of_commits');
-
+        
         $client = new \Github\Client();
         
         try {

@@ -1,5 +1,5 @@
 <div id="ohmyrepository" class="row">
-    <div class="col-12">
+    <div class="col-12 m-1">
         <h1>{$repository}</h1>
         {foreach $commits as $commit}
         <div class="card bg-secondary text-white col-sm-12 col-md-4 col-lg-3 m-2">
