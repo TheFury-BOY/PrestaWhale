@@ -7,5 +7,3 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build the Docker stack
         run: docker-compose up -d
-      - name: WebServer Test
-        run: docker run --network container:prestawhale-webserver appropriate/curl -s --retry 10 --retry-connrefused http://localhost:5000/

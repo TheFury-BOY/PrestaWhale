@@ -5,22 +5,35 @@ namespace Prestashop\Module\OhMyRepository;
 class GitHubApi
 {
 
-    public function getCommit()
+    public function getCommit($github_repository_name, $github_account_name, $number_of_commits)
     {
-        $github_repository_name = strval(\Tools::getValue('github_repository_name'));
-        $github_account = strval(\Tools::getValue('githubhub_account'));
-
+        
         $client = new \Github\Client();
+        
         try {
-            $repository = $client->api('user')->repositories($github_repository_name);
-            $commits = $client->api('repo')->commits()->all($github_account, $github_repository_name, ['path' => ""]);
+            $commits = $client->api('repo')->commits()->all($github_account_name, $github_repository_name, ['path' => ""]);
 
+            $filter_commits = array();
+            $count = 0;
+            foreach ($commits as $commit) {
+                if ($count > $number_of_commits) {
+                    break;
+                }
+
+                $commit = array(
+                    'message' => $commit['commit']['message'], 
+                    'author' => $commit['commit']['author']['name'],
+                    'date' => $commit['commit']['author']['date']
+                );
+                array_push($filter_commits, $commit);
+                
+                $count++;
+            }
             $params = array(
-                'repository' => $repository,
-                'commit' => $commits
+                'repository' => $github_repository_name,
+                'commits' => $filter_commits
             );
-            ddd($params);
-            $this->context->smarty($params); 
+            return $params;
         } catch (\RuntimeException $e) {
             echo "Github API Access Error.";
         }
