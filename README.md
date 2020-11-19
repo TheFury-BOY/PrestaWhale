@@ -47,6 +47,8 @@ If you want to use or develop the Oh-My-Repository Module dor Prestashop 1.6, yo
 1. Search `prestashop/modules/ohmyrepository`
 2. make all pull request you want on this repository
 
+Oh-My-Repository is not finish, is only the beginning of dev for this Presta Module.
+
 ***
 
 Created by [TheFury-BOY](adriendudeck.online) on MIT Licence :pencil2: 
