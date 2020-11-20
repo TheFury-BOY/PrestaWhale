@@ -41,6 +41,7 @@ define('_PS_SSL_PORT_', 443);
 ini_set('default_charset', 'utf-8');
 ini_set('magic_quotes_runtime', 0);
 ini_set('magic_quotes_sybase', 0);
+@ini_set('display_errors', 'on');
 
 /* correct Apache charset (except if it's too late */
 if (!headers_sent()) {

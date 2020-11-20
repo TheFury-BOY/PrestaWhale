@@ -57,4 +57,4 @@ Oh-My-Repository is not finish, is only the beginning of dev for this Presta Mod
 
 ***
 
-Created by [TheFury-BOY](adriendudeck.online) on MIT Licence :pencil2: 
+:pencil2: Created by [TheFury-BOY](adriendudeck.online) on MIT Licence 

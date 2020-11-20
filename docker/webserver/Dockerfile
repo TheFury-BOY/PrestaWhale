@@ -69,6 +69,7 @@ RUN apt-get update -y \
 
 # Active Php Extensions
 RUN docker-php-ext-install -j$(nproc) intl \
+    -j$(nproc) iconv mcrypt \
     pdo_mysql \
     mysqli \
     pdo_sqlite \
