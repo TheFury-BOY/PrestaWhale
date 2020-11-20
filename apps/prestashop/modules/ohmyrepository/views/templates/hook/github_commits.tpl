@@ -1,15 +1,14 @@
-<div id="ohmyrepository" class="row">
-    <div class="col-12 m-1">
-        <h1>{$repository}</h1>
-        {foreach $commits as $commit}
-        <div class="card bg-secondary text-white col-sm-12 col-md-4 col-lg-3 m-2">
-            <div class="card-body m-2">
-                <h2 class="card-title h3 text-center">Commit</h2>
-                <h3 class="card-subtitle mb-2 text-muted h4">{$commit.author}</h3>
-                <p class="card-text text-justify">{$commit.message}</p>
-                <p class="card-text text-muted text-right">{$commit.date}</p>
+<div id="ohmyrepository" class="col-12">
+    <h1 class="title"><a href="{$repository_url}" target="_blank">{$repository}</a></h1>
+    {foreach $commits as $commit}
+    <div class="col-sm-12 col-md-4 col-lg-3">
+        <div class="card">
+            <a href="{$author_url}"><img class="avatar" src="{$committer_avatar}" alt="{$committer_login}" style="width:100%"></a>
+            <div class="container">
+                <h2 class="h3 text-center">{$commit.message}</h2>
+                <p class="text-center"><time class="text-muted" datetime="{$commit.date}">{$commit.date}</time> by <a href="{$author_url}" target="_blank">{$commit.author}</a></p>
             </div>
         </div>
-        {/foreach}
     </div>
+    {/foreach}
 </div>

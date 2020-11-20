@@ -91,6 +91,9 @@ class Ohmyrepository extends Module
 
     public function hookDisplayHome()
     {
+
+        $this->context->controller->addJS($this->_path.'/views/js/front.js');
+        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
         // < assign variables to template >
         $this->context->smarty->assign(
             $this->getCommit()
@@ -205,37 +208,31 @@ class Ohmyrepository extends Module
         return $output.$this->displayForm();
     }
 
-    /**
-    * Add the CSS & JavaScript files you want to be loaded in the BO.
-    */
-    public function hookBackOfficeHeader()
-    {
-        if (Tools::getValue('module_name') == $this->name) {
-            $this->context->controller->addJS($this->_path.'views/js/back.js');
-            $this->context->controller->addCSS($this->_path.'views/css/back.css');
-        }
-    }
-
-    /**
-     * Add the CSS & JavaScript files you want to be added on the FO.
-     */
-    public function hookHeader()
-    {
-        $this->context->controller->addJS($this->_path.'/views/js/front.js');
-        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
-    }
-
     private function getCommit()
     {
         $github_repository_name = \Configuration::get('github_repository_name');
         $github_account_name = \Configuration::get('github_account_name');
         $number_of_commits = \Configuration::get('number_of_commits');
 
+        $client = new \Predis\Client();
+
+        ddd($client);
+        $client->connect('127.0.0.1', 6379);
+
+        $pool = new \Cache\Adapter\Predis\PredisCachePool($client);
+
         $client = new \Github\Client();
-        
+        $client->addCache($pool);
+
         try {
             $commits = $client->api('repo')->commits()->all($github_account_name, $github_repository_name, ['path' => ""]);
 
+            $repositories = $client->api('user')->repositories($github_account_name);
+             foreach ($repositories as $repository) {
+                 if (strpos($repository['html_url'], $github_repository_name)) {
+                    $repository_url = $repository['html_url'];
+                 }
+             }
             $filter_commits = array();
             $count = 0;
             foreach ($commits as $commit) {
@@ -246,16 +243,25 @@ class Ohmyrepository extends Module
                 $commit = array(
                     'message' => $commit['commit']['message'], 
                     'author' => $commit['commit']['author']['name'],
-                    'date' => $commit['commit']['author']['date']
+                    'date' => $commit['commit']['author']['date'],
+                    'author_url' => $commit['author']['html_url'],
+                    'committer_avatar' => $commit['committer']['avatar_url'],
+                    'committer_login' => $commit['committer']['login'],
                 );
+
                 array_push($filter_commits, $commit);
                 
                 $count++;
             }
+
             $params = array(
                 'repository' => $github_repository_name,
+                'repository_url' => $repository_url,
                 'commits' => $filter_commits
             );
+
+            $client->removeCache();
+
             return $params;
         } catch (\RuntimeException $e) {
             echo "Github API Access Error.";

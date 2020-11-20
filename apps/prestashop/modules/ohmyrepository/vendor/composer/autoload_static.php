@@ -30,10 +30,13 @@ class ComposerStaticInitd83276938a6d42c0f296ff9eaa117b8a
         ),
         'P' => 
         array (
+            'Psr\\SimpleCache\\' => 16,
+            'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
             'Psr\\Cache\\' => 10,
             'PrestaShop\\Module\\OhMyRepository\\' => 33,
+            'Predis\\' => 7,
         ),
         'H' => 
         array (
@@ -55,6 +58,10 @@ class ComposerStaticInitd83276938a6d42c0f296ff9eaa117b8a
         'C' => 
         array (
             'Clue\\StreamFilter\\' => 18,
+            'Cache\\TagInterop\\' => 17,
+            'Cache\\Hierarchy\\' => 16,
+            'Cache\\Adapter\\Predis\\' => 21,
+            'Cache\\Adapter\\Common\\' => 21,
         ),
     );
 
@@ -79,6 +86,14 @@ class ComposerStaticInitd83276938a6d42c0f296ff9eaa117b8a
         array (
             0 => __DIR__ . '/..' . '/symfony/options-resolver',
         ),
+        'Psr\\SimpleCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-factory/src',
@@ -95,6 +110,10 @@ class ComposerStaticInitd83276938a6d42c0f296ff9eaa117b8a
         'PrestaShop\\Module\\OhMyRepository\\' => 
         array (
             0 => __DIR__ . '/../..' . '/classes',
+        ),
+        'Predis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/predis/predis/src',
         ),
         'Http\\Promise\\' => 
         array (
@@ -145,11 +164,26 @@ class ComposerStaticInitd83276938a6d42c0f296ff9eaa117b8a
         array (
             0 => __DIR__ . '/..' . '/clue/stream-filter/src',
         ),
+        'Cache\\TagInterop\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cache/tag-interop',
+        ),
+        'Cache\\Hierarchy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cache/hierarchical-cache',
+        ),
+        'Cache\\Adapter\\Predis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cache/predis-adapter',
+        ),
+        'Cache\\Adapter\\Common\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cache/adapter-common',
+        ),
     );
 
     public static $classMap = array (
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
-        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Normalizer' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
         'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',

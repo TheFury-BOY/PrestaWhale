@@ -25,7 +25,29 @@
 * Don't forget to prefix your containers with your own identifier
 * to avoid any conflicts with others containers.
 */
+#ohmyrepository .title {
+    margin: 2rem 0 1rem 0;
+}
 
-.bg-secondary {
-    background-color: #f2f2f2;
+.avatar {
+    display: block;
+    margin: 2px;
+}
+
+.card {
+    /* Add shadows to create the "card" effect */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    min-height: 200px;
+}
+  
+/* On mouse-over, add a deeper shadow */
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+/* Add some padding inside the card container */
+.container {
+  padding: 2px 16px;
+  box-sizing: border-box;
 }
