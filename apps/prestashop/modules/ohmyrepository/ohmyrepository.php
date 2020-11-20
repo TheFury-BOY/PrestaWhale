@@ -216,7 +216,6 @@ class Ohmyrepository extends Module
 
         $client = new \Predis\Client();
 
-        ddd($client);
         $client->connect('127.0.0.1', 6379);
 
         $pool = new \Cache\Adapter\Predis\PredisCachePool($client);

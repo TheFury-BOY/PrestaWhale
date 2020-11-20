@@ -5,11 +5,11 @@ A Docker-compose stack to develop your Prestashop 1.6 App,on all Distribution (L
 1. [Version](#version)
 2. [Prerequisite](#prerequisite)
 3. [Installation](#installation)
-4. [Oh-My-Repository](#ohmyrepository)
+4. [Oh-My-Repository](#oh-my-repository)
 
 ***
 
-## :floppy_disk: Version {#version}
+## Version
 
 - PrestaShop 1.6.1.24
 - PHP 7.1
@@ -18,7 +18,13 @@ A Docker-compose stack to develop your Prestashop 1.6 App,on all Distribution (L
 
 ***
 
-## :computer: Prerequisite {#installation}
+## Prerequisite
+
+- Have docker and docker-compose on your VM (or on your desktop).
+
+***
+
+## Installation
 
 1. Clone the project repository : `git clone [Project URL]`
 2. Access to folder: `cd PrestaWhale/`
@@ -32,7 +38,7 @@ A Docker-compose stack to develop your Prestashop 1.6 App,on all Distribution (L
 
 ***
 
-## :heart_eyes_cat: Oh-My-Repository {#ohmyrepository}
+## Oh-My-Repository
 
 If you want to use or develop the Oh-My-Repository Module dor Prestashop 1.6, you just have to :
 
